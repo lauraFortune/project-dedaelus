@@ -14,3 +14,7 @@ export type UpdateProfileRequestBody = {
   profileImage?: string;
   bio?: string;
 }
+
+export type CreateStoryRequestBody = {
+  author: string;
+}
