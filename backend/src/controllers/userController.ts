@@ -1,7 +1,7 @@
 
-import { NextFunction, Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import generateToken from "../utils/generateToken";
 import User, { IUser } from "../models/UserModel";
 import { RegisterRequestBody, LoginRequestBody, UpdateProfileRequestBody } from "../types";
 
@@ -63,7 +63,7 @@ const loginUser = async(req: Request, res: Response, next: NextFunction) => {
     } 
      
     const userId = userFound._id as string;
-    const token: string = jwt.sign({userId}, process.env.JWT_SECRET as string, {expiresIn: '30d'});
+    const token = generateToken(userId);
   
     res.status(200).json({ token, email: userFound.email, userId });
     

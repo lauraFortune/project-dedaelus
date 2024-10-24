@@ -4,7 +4,7 @@ import express from 'express';
 const cors = require('cors');
 import userRoutes from './routes/userRoutes';
 import storyRoutes from './routes/storyRoutes';
-import { errorHandler, unkownEndpoint } from './utils/errorHandler';
+import { errorHandler, unknownEndpoint } from './utils/errorHandler';
 
 // Initialise expres app
 const app = express(); 
@@ -18,7 +18,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/stories', storyRoutes);
 
 // Custom Middleware
-app.use(unkownEndpoint);   // Catch unkown endpoints
-app.use(errorHandler);     // Last stop error handler
+app.use(unknownEndpoint);   // Catch unkown endpoints
+app.use(errorHandler);      // Last stop error handler
 
 export default app;

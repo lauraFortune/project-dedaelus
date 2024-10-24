@@ -4,21 +4,12 @@ import { getAllStories, getStoryById, createStory, updateStory,deleteStoryById }
 
 const router = Router();
 
-// Get all stories
-router.get('/stories', getAllStories);
 
-// Get story by ID
-router.get('/stories/:id', getStoryById);
-
-// Create a new story
-router.post('/stories', createStory);
-
-// Update Story by ID - PATCH for partial update
-router.patch('/stories/:id', updateStory);
-
-// Delete Story by ID
-router.delete('/stories/:id', deleteStoryById);
-
+router.post('/', createStory);               // POST /stories/  -  Create a new user
+router.get('/', getAllStories);              // GET /stories/  -  Get all stories
+router.get('/:id', getStoryById);            // GET /stories/:id  -  Get story by ID
+router.patch('/:id', updateStory);           // PATCH /stories/:id  -  Update story by ID
+router.delete('/:id', deleteStoryById);      // DELETE /users/:id  -  Delete user by ID
 
 
 export default router;

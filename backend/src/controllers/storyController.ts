@@ -1,7 +1,7 @@
 
 import { NextFunction, Request, Response } from 'express';
 import Story, { IStory } from '../models/StoryModel';
-import { CreateStoryRequestBody } from '../types';
+import { CreateStoryRequestBody } from '../types/requests/types';
 
 
 // Get all Stories
@@ -63,7 +63,7 @@ const updateStory = async (req: Request, res: Response, next: NextFunction) => {
       runValidators: true,
     });
 
-    if (!updateStory) {
+    if (!updatedStory) {
       res.status(404).json({ error: 'Story not found' });
     }
 
