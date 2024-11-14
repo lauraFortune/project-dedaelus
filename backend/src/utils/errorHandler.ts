@@ -26,8 +26,9 @@ export const errorHandler = ( err: CustomError | Error, req: Request, res: Respo
   res.status(statusCode);
   res.json({
     status: 'error',
+    statusCode: statusCode,
     message: message,
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
   });
 };
 

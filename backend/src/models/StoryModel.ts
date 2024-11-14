@@ -8,13 +8,15 @@ export interface IStory extends Document {
   likes: mongoose.Types.ObjectId[];
   publish: boolean;
   chapters: IChapter[];
+  createdAt: Date; // Automatically added by Mongoose timestamps
+  updatedAt: Date;
 }
 
-interface IChapter {
+export interface IChapter {
   scenes: IScene[];
 }
 
-interface IScene {
+export interface IScene {
   title: string;
   image?: string;
   description: string;
@@ -22,7 +24,7 @@ interface IScene {
   choices: IChoice[];
 }
 
-interface IChoice {
+export interface IChoice {
   text: string;
   targetChapter: number;
   targetScene: number;

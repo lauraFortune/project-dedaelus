@@ -10,7 +10,7 @@ export interface IUser extends Document {
   bio: string;
   stories: mongoose.Types.ObjectId[];
   favouriteStories: mongoose.Types.ObjectId[];
-  createdAt: Date;
+  createdAt: Date; // Automatically added by Mongoose timestamps
   updatedAt: Date;
 }
 
@@ -45,7 +45,7 @@ const userSchema = new Schema <IUser> ({
   },
   bio: {
     type: String,
-    default: '',
+    default: 'All about me....',
     maxlength: 500,
   },
   stories: [

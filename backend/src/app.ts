@@ -5,6 +5,8 @@ const cors = require('cors');
 import userRoutes from './routes/userRoutes';
 import storyRoutes from './routes/storyRoutes';
 import { errorHandler, unknownEndpoint } from './utils/errorHandler';
+import swaggerUi from 'swagger-ui-express';
+import { openapiSpecification } from './swagger';
 
 // Initialise expres app
 const app = express(); 
@@ -13,7 +15,10 @@ const app = express();
 app.use(express.json());   // Parse incoming requests with JSON payloads.
 app.use(cors());           // Cross-Origin Resource Sharing - allows client-side requests to access server resources.
 
-// Routes
+// Server Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
+
+// API Routes
 app.use('/api/users', userRoutes);
 app.use('/api/stories', storyRoutes);
 

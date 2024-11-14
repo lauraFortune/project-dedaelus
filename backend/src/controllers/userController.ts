@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import generateToken from "../utils/generateToken";
 import User, { IUser } from "../models/UserModel";
 import { RegisterRequestBody, LoginRequestBody, UpdateProfileRequestBody } from "../types";
+import CustomError from "../utils/CustomError";
 
 
 /**
@@ -13,6 +14,10 @@ import { RegisterRequestBody, LoginRequestBody, UpdateProfileRequestBody } from 
 const registerUser = async (req: Request, res: Response, next: NextFunction ) => {
   try {
     const { username, email, password } = req.body as RegisterRequestBody;
+
+    // All fields are required
+    if (!username || !email || !password) throw new CustomError('All fields are required', 400);
+    
     // Check username and email are unique ( do not already exist in the DB )
     const userExists = await User.findOne({
       $or: [
@@ -22,8 +27,7 @@ const registerUser = async (req: Request, res: Response, next: NextFunction ) =>
     });
     // Handle User Exists
     if (userExists) {
-      res.status(409).json({ error: `Username or Email already exists.`});
-      return;
+      throw new CustomError('Username or Email already exists', 409);
     } 
   
     // bcrypt hash password
@@ -34,7 +38,11 @@ const registerUser = async (req: Request, res: Response, next: NextFunction ) =>
     // Save new user to mongoDB
     const savedUser = await newUser.save();
 
-    res.status(201).json(savedUser); // Sanitise password!!
+    // Exclude password from response object
+    const userResponse = savedUser.toObject();
+    delete userResponse.password;
+
+    res.status(201).json(userResponse); // Sanitised user
 
   } catch (err) {
     console.error(`User.Register error: ${err}`);
@@ -50,17 +58,11 @@ const loginUser = async(req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body as LoginRequestBody;
 
     const userFound: IUser | null = await User.findOne({ email: { $regex: new RegExp(email, 'i') }, });
-    // consider adding generic error message - 'Invalid email or password'
-    if (!userFound) {
-      res.status(401).json({ error: 'Email not found' });              // 401 - not authenticated
-      return;
-    } 
-      
+    if (!userFound) throw new CustomError('Invalid email or password', 401);  
+
     const passwordMatch = await bcrypt.compare(password, userFound.password as string);
-    if(!passwordMatch) {
-      res.status(401).json({ error: 'Passwords do not match'});    // 401 - not authenticated
-      return;
-    } 
+    if (!passwordMatch) throw new CustomError('Invalid email or password', 401);
+      
      
     const userId = userFound._id as string;
     const token = generateToken(userId);
@@ -90,14 +92,14 @@ const getAllUsers  = async(req: Request, res: Response, next: NextFunction) => {
 // router.get('/users/:id', );
 const getUserById = async(req: Request, res: Response, next: NextFunction) => {
   try {
+
     const { id } = req.params;
     const user = await User.findById(id).select('-password'); // Select all fields except password - sanitise output
-    if (!user) {
-      res.status(404).json({ error: 'User not found'});
-      return;
-    } 
-  
+    
+    if (!user) throw new CustomError('User not found', 404);
+    
     res.status(200).json(user);
+
   } catch (err) {
     console.error(`User.GetById Error: ${err}`);
     next(err);
@@ -110,14 +112,14 @@ const getUserById = async(req: Request, res: Response, next: NextFunction) => {
 const updateUserProfile = async(req: Request, res: Response, next: NextFunction) => {
   try {
     const updatedUser = req.body as UpdateProfileRequestBody;
-    const user = await User.findByIdAndUpdate(req.params.id, updatedUser, { new: true }).select('-password');
+    const user = await User.findByIdAndUpdate(req.params.id, updatedUser, { 
+      new: true,
+      runValidators: true, // Ensures updated fields are validated
+    }).select('-password');
 
-    if (!user) {
-      res.status(400).json({ error: 'User not found' });
-      return;
-    } 
+    if (!user) throw new CustomError('User not found', 404);
 
-    res.status(200).send(user);
+    res.status(200).json(user);
 
   } catch (err) {
     console.error(`User.UpdateProfile Error: ${err}`);
@@ -134,12 +136,10 @@ const deleteUserById = async(req: Request, res: Response, next: NextFunction) =>
     const { id } = req.params;
     const user = await User.findByIdAndDelete(id);
 
-    if (!user) {
-      res.status(404).json({ error: `User not found` });
-      return;
-    }
-
-    res.status(204).json({ message: `User successfully deleted` });
+    if (!user) throw new CustomError('User not found', 404);
+    
+    // res.status(204).send(); // For production: Don't send back anything with a 204
+    res.status(200).json({ message: 'User successfully deleted' }); // User successfully deleted, 204 response should not contain a body
 
   } catch (err) {
     console.error(`User.Delete Error: ${err}`);
