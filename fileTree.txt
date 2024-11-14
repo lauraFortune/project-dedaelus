@@ -1,6 +1,8 @@
 project-dedaelus
 ├── backend
 │   ├── .env
+│   ├── .gitignore
+│   ├── eslint.config.mjs
 │   ├── node_modules
 │   ├── package-lock.json
 │   ├── package.json
@@ -9,11 +11,26 @@ project-dedaelus
 │   │   ├── config
 │   │   │   └── db.ts
 │   │   ├── controllers
+│   │   │   ├── storyController.ts
+│   │   │   └── userController.ts
 │   │   ├── index.ts
 │   │   ├── models
-│   │   │   └── userModel.ts
+│   │   │   ├── StoryModel.ts
+│   │   │   └── UserModel.ts
 │   │   ├── routes
+│   │   │   ├── storyRoutes.ts
+│   │   │   └── userRoutes.ts
+│   │   ├── swagger.ts
+│   │   ├── types
+│   │   │   ├── express
+│   │   │   │   └── index.d.ts
+│   │   │   ├── index.ts
+│   │   │   └── requests
+│   │   │       └── types.ts
 │   │   └── utils
-│   │       └── errorHandler.ts
+│   │       ├── authMiddleware.ts
+│   │       ├── CustomError.ts
+│   │       ├── errorHandler.ts
+│   │       └── generateToken.ts
 │   └── tsconfig.json
 └── fileTree.txt
