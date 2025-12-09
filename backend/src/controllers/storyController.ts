@@ -81,16 +81,27 @@ const createStory = async (req: Request, res: Response, next: NextFunction) => {
 const updateStory = async (req: Request, res: Response, next: NextFunction) => {
   try {
 
+    // Get authenticated user
+    const userId = req.user!._id as mongoose.Types.ObjectId;
+
+    // Fetch Story
+    const story = await Story.findById(req.params.id);
+    if (!story) throw new CustomError("Story not found", 404);
+
+    // Verify story ownership
+    if (story.author.toString() !== userId.toString()) throw new CustomError("Not authorised to modify this story", 403);
+
+    // If all ok - proceeds with update
     const updatedStoryData = req.body as UpdateStoryRequestBody;
 
-    const story = await Story.findByIdAndUpdate(req.params.id, updatedStoryData, {
+    const updatedStory = await Story.findByIdAndUpdate(req.params.id, updatedStoryData, {
       new: true,
       runValidators: true,  // Ensures updated fields are validated
-    });
+    })
 
-    if (!story) throw new CustomError('Story not found', 404);
+    if (!updatedStory) throw new CustomError('Updated story not found', 404);
     
-    res.status(200).json({ status: 'success', data: story });
+    res.status(200).json({ status: 'success', data: updatedStory });
 
   } catch (err) {
     console.error(`Stories.Update Error: ${err}`);
@@ -98,15 +109,25 @@ const updateStory = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+
 // Delete Story by ID
 // router.delete('/stories/:id', deleteStoryById);
 const deleteStoryById = async(req: Request, res: Response, next: NextFunction) => {
   try {
 
-    const { id } = req.params;
-    const story = await Story.findByIdAndDelete(id);
+    // Get authenticated user
+    const userId = req.user!._id as mongoose.Types.ObjectId;
 
-    if (!story) throw new CustomError('Story not found', 404);
+    // Fetch Story
+    const story = await Story.findById(req.params.id);
+    if (!story) throw new CustomError("Story not found", 404);
+
+    // Verify story ownership
+    if (story.author.toString() !== userId.toString()) throw new CustomError("Not authorised to delete this story", 403);
+
+
+    await Story.findByIdAndDelete(req.params.id);
+
     
     res.status(200).json({ message: `Story successfully deleted` });
     

@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import { registerUser, loginUser, getAllUsers, getUserById, updateUserProfile, deleteUserById } from '../controllers/userController';
 import { auth } from '../utils/authMiddleware';
+import { validateRegister, validateLogin } from '../utils/validationMiddleware';
 
 const router = Router();
 
@@ -46,7 +47,7 @@ const router = Router();
  *            schema:
  *              $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', registerUser);      
+router.post('/', validateRegister, registerUser);      
 
 /**
  * @openapi
@@ -81,7 +82,7 @@ router.post('/', registerUser);
  *            schema:
  *              $ref: '#/components/schemas/ErrorResponse'
 */
-router.post('/login', loginUser); 
+router.post('/login', validateLogin, loginUser); 
 
 // Protected routes
 /**
