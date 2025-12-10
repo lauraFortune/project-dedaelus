@@ -1,11 +1,11 @@
 
-import mongoose, { Document, Schema, model } from 'mongoose';
+import mongoose, { Document, Schema, Types, model } from 'mongoose';
 
-export interface IStory extends Document {
+export interface IStory extends Document {  // Document object has _id
   title: string;
   synopsis: string;
-  author: mongoose.Types.ObjectId;
-  likes: mongoose.Types.ObjectId[];
+  author: Types.ObjectId;
+  likes: Types.ObjectId[];
   publish: boolean;
   chapters: IChapter[];
   createdAt: Date; // Automatically added by Mongoose timestamps
@@ -13,10 +13,12 @@ export interface IStory extends Document {
 }
 
 export interface IChapter {
+  _id?: Types.ObjectId;
   scenes: IScene[];
 }
 
 export interface IScene {
+  _id?: Types.ObjectId;
   title: string;
   image?: string;
   description: string;
@@ -25,11 +27,11 @@ export interface IScene {
 }
 
 export interface IChoice {
+  _id?: Types.ObjectId;
   text: string;
-  targetChapter: number;
-  targetScene: number;
+  targetChapterId: Types.ObjectId;
+  targetSceneId: Types.ObjectId;
 }
-
 
 
 const storySchema = new Schema <IStory> ({
@@ -44,13 +46,13 @@ const storySchema = new Schema <IStory> ({
     trim: true,
   },
   author: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
   likes: [
     {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
     }
   ],
@@ -86,14 +88,12 @@ const storySchema = new Schema <IStory> ({
                 default: 'Choice',
                 required: true,
               },
-              targetChapter: {
-                type: Number,
-                default: 0,
+              targetChapterId: {
+                type: Schema.Types.ObjectId,
                 required: true,
               },
-              targetScene: {
-                type: Number,
-                default: 0,
+              targetSceneId: {
+                type: Schema.Types.ObjectId,
                 required: true,
               },
             },
