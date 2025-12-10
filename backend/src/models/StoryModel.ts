@@ -10,6 +10,12 @@ export interface IStory extends Document {  // Document object has _id
   chapters: IChapter[];
   createdAt: Date; // Automatically added by Mongoose timestamps
   updatedAt: Date;
+
+  // Methods
+  isPublished(): boolean;
+  addLike(userId: Types.ObjectId): void;
+  removeLike(userId: Types.ObjectId): void;
+  isLikedBy(userId: Types.ObjectId): boolean;
 }
 
 export interface IChapter {
@@ -106,6 +112,38 @@ const storySchema = new Schema <IStory> ({
 }, {
   timestamps: true, // Automatically adds createdAt and updatedAt fields
 });
+
+
+/**
+ * Story Model Methods
+ */
+
+// Check if story is published
+storySchema.methods.isPublished = function(): boolean {
+  return this.publish;
+}
+
+// Add a like from a User
+storySchema.methods.addLike = function(userId: Types.ObjectId): void {
+  if (!this.isLikedBy(userId)) {    // only allow like if not already liked by this user
+    // Push userId into likes array
+    this.likes.push(userId);
+  } 
+}
+
+// Remove a like from a User
+storySchema.methods.removeLike = function(userId: Types.ObjectId): void {
+  if (this.isLikedBy(userId)) {   // only allow unlike if already liked by this user
+    // filters out users Id from likes array
+    this.likes = this.likes.filter((id: Types.ObjectId) => id.toString() !== userId.toString())
+  }
+}
+
+// Check if user has liked this story
+storySchema.methods.isLikedBy = function(userId: Types.ObjectId): boolean {
+  // checks if any id matches userId - returns true or false
+  return this.likes.some((id: Types.ObjectId) => id.toString() === userId.toString());
+};
 
 
 const Story = model<IStory>('Story', storySchema);
