@@ -64,7 +64,7 @@ const loginUser = async(req: Request, res: Response, next: NextFunction) => {
     if (!passwordMatch) throw new CustomError('Invalid email or password', 401);
       
      
-    const userId = userFound._id as string;
+    const userId = userFound._id.toString();
     const token = generateToken(userId);
   
     res.status(200).json({ token, email: userFound.email, userId });
